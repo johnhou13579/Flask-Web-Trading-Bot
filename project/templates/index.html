@@ -1,0 +1,14 @@
+{% extends "base.html" %}
+
+{% block content %}
+<h1 class="title mb-1">
+  Long Term Momentum Trading Bot on Tech Stocks
+</h1>
+<br>
+<h2 class="subtitle mb-1">
+  Since our plan is to hold stocks we find value in long term, we decided to implement a momentum based strategy that would alternate between stocks that we would have held long term regardless. Since this backtest also shows tremendous spikes from Tesla and AMD, future results may not show as promising returns. Regardless, we find value in these companies and would have held them long term.
+</h2>
+<h2 class="subtitle mb-1">
+  Portfolio rebalance happens bi-monthly. Risk lies in having entire portfolio within one stock and huge drawdown. However, since we would have held long term without rebalance, we would have expected similar drawdowns.A trading bot utilized on the TD Ameritrade platform written in python and utilizing tda-api API. Bot originally discovered, tweaked, and backtested on Quantopian.
+</h2>
+{% endblock %}

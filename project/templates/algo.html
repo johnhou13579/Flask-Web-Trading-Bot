@@ -1,0 +1,174 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1 class="title">
+  Algorithm Results For {{name}}!
+</h1>
+<h2 class="subtitle">
+    The highest scoring stock using our algorithm is {{stockTicker}}!
+  </h2>
+  
+  <table class = "table is-bordered is-narrow is-hoverable is-fullwidth" id="table1">
+    
+    <thead>
+      <tr>
+        <th class="has-text-centered">Rank</th>
+        <th class="has-text-centered">Stock</th>
+        <th class="has-text-centered">Score</th>
+      </tr>
+    </thead>
+
+    {% for name in weightList %}
+    {% if weightList[name][1] == 1 %}
+    <tr class = "is-selected">
+    {% else %}
+    <tr>
+    {% endif %}  
+        <th class="has-text-centered">{{ weightList[name][1] }}</th> 
+        <td class="has-text-centered">{{ name }}</td> 
+        <td class="has-text-centered">{{ weightList[name][0] }}</td>
+    </tr>
+  {% endfor %}
+
+  </table>
+
+  <form method="post" id="form" class="mb-1"> 
+    <input class="input field is-rounded" type ="text" id="list" autofocus autocomplete="off" placeholder  ="Enter stocks you want to run algorithm on separate by a space. i.e AMZN TSLA AAPL"> 
+    <button class = "button is-link">Run Algorithm</button> 
+  </form> 
+
+   
+  <h1 class="title">
+    Here are your current holdings!
+  </h1>
+  <table class = "table is-bordered is-narrow is-hoverable is-fullwidth" id = "table2">
+    
+    <thead>
+      <tr>
+        <th class="has-text-centered">Stock</th>
+        <th class="has-text-centered">Quantity Owned</th>
+        <th class="has-text-centered">Price</th>
+        <th class="has-text-centered">Current Price</th>
+        <th class="has-text-centered">Purchase Value</th>
+        <th class="has-text-centered">Current Market Value</th>
+        <th class="has-text-centered">P/L</th>
+        <th class="has-text-centered">% Gain</th>
+      </tr>
+    </thead>
+
+    {% for name in holdings %}
+    {% if '-' in holdings[name][6] %}
+    <tr class="has-text-danger">
+    {% else %}
+    <tr>
+    {% endif %}
+        <th class="has-text-centered">{{ name }}</th> 
+        <td class="has-text-centered">{{ holdings[name][0] }}</td>
+        <td class="has-text-centered">{{ holdings[name][1] }}</td>
+        <td class="has-text-centered">{{ holdings[name][2] }}</td>
+        <td class="has-text-centered">{{ holdings[name][3] }}</td>
+        <td class="has-text-centered">{{ holdings[name][4] }}</td>
+        <td class="has-text-centered">{{ holdings[name][5] }}</td>
+        <td class="has-text-centered">{{ holdings[name][6] }}</td>
+    </tr>
+  {% endfor %}
+
+  </table>
+  <div class="column is-4 is-offset-4">
+  <div class="box">
+    <div class="field">
+
+      <div class="control mb-1">
+          <input class="input is-medium is-rounded" type="text" id="stock" placeholder="Stock Ticker i.e. AMZN" autofocus="">
+      </div>
+
+      <div class="control">
+          <input class="input is-medium is-rounded" type="number" id="quantity" placeholder="Quantity" autofocus="">
+      </div>
+
+          <button class = "button is-rounded is-block is-info is-large is-fullwidth" id="tickerButton">
+            Purchase Stock
+          </button> 
+  </div>
+  </div>
+
+  <div class="box">
+      <div class="field">
+  
+        <div class="control mb-1">
+            <input class="input is-medium is-rounded" type="text" id="stock2" placeholder="Stock Ticker i.e. AMZN" autofocus="">
+        </div>
+  
+        <div class="control">
+            <input class="input is-medium is-rounded" type="number" id="quantity2" placeholder="Quantity" autofocus="">
+        </div>
+  
+            <button class = "button is-rounded is-block is-danger is-large is-fullwidth" id="tickerButton2">
+              Sell Stock
+            </button> 
+    </div>
+    </div>
+    
+  </div>
+
+  <p id="results"></p> 
+  <p id="purchaseTemp"></p> 
+  <p id="sellTemp"></p> 
+
+  <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script> 
+    <script> 
+      $("#tickerButton").on('click', function(e){
+          var stock = ($('#stock').val()).toUpperCase()
+          var quantity = ($('#quantity').val()).toUpperCase()
+          
+          $.ajax({ 
+          url: 'http://127.0.0.1:5000/purchase', 
+          data: {'stock': stock, 'quantity': quantity}, 
+					method: 'POST', 
+					success: function(data) { 
+            var data = JSON.parse(data);
+            $('#purchaseTemp').html("Successfully bought "+ data.number_of_shares+" share(s) of "+data.maxValue+".") 
+            $('#stock').val('');
+            $('#quantity').val('');
+					} 
+        });
+        e.preventDefault();
+      });
+
+      $("#tickerButton2").on('click', function(e){
+          
+          var stock = ($('#stock2').val()).toUpperCase()
+          var quantity = ($('#quantity2').val()).toUpperCase()
+          
+          $.ajax({ 
+          url: 'http://127.0.0.1:5000/sell', 
+          data: {'stock2': stock, 'quantity2': quantity}, 
+					method: 'POST', 
+					success: function(data) { 
+            var data = JSON.parse(data);
+            $('#sellTemp').html("Successfully sold "+ data.number_of_shares+" share(s) of "+data.maxValue+".") 
+            $('#stock2').val('');
+            $('#quantity2').val('');
+					} 
+        });
+        e.preventDefault();
+      });
+
+      $("#form").on('submit', function(e){ 
+				var list = ($('#list').val()).toUpperCase(); 
+        e.preventDefault();  
+				$.ajax({ 
+					url: 'http://127.0.0.1:5000/algo', 
+					data: {'list': list}, 
+					method: 'POST', 
+					success: function(data) { 
+            $('#table1').html(data) 
+            $('#list').val('');
+					} 
+				}); 
+			}); 
+      
+		</script> 
+
+{% endblock %}

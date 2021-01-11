@@ -1,0 +1,50 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1 class="title">
+    View Previous Orders
+</h1>
+
+<h1 class="subtitle">
+    Most recent orders from the previous 30 days.
+</h1>
+    
+  <table class = "table is-striped is-bordered is-narrow is-hoverable is-fullwidth" id = "table2">
+    
+    <thead>
+      <tr>
+        <th class="has-text-centered">Stock</th>
+        <th class="has-text-centered">Type</th>
+        <th class="has-text-centered">Quantity</th>
+        <th class="has-text-centered">Filled Price</th>
+        <th class="has-text-centered">Cost</th>
+        <th class="has-text-centered">Date</th>
+      </tr>
+    </thead>
+
+    {% for name in orderList %}
+    
+    <tr>
+        <td class="has-text-centered">{{ name[0] }}</td>
+        {% if '-' not in name[4] %}
+        <td class="has-text-centered has-text-danger">{{ name[1] }}</td>
+        {% else %}
+        <td class="has-text-centered has-text-primary">{{ name[1] }}</td>
+        {% endif %}
+        <td class="has-text-centered">{{ name[2] }}</td>
+        <td class="has-text-centered">{{ name[3] }}</td>
+        {% if '-' in name[4] %}
+        <td class="has-text-centered">{{ name[4][1:] }}</td>
+        {% else %}
+        <td class="has-text-centered">{{ "-" + name[4] }}</td>
+        {% endif %}
+        <td class="has-text-centered">{{ name[5] }}</td>
+    </tr>
+  {% endfor %}
+
+  </table>
+
+  
+
+{% endblock %}
