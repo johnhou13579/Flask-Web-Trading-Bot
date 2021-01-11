@@ -43,4 +43,6 @@ def create_app():
     from .algorithm import algo as algo_blueprint
     app.register_blueprint(algo_blueprint)
 
+    app.run(host="0.0.0.0", port=80)
+
     return app
