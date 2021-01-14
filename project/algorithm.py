@@ -27,7 +27,7 @@ console.log(localStorage.getItem('token'));
 @login_required
 def display():
     try:
-        c = auth.client_from_token_file(token, api_key)
+        c = auth.client_from_token_file(path.join(basedir, 'token'), api_key)
     except FileNotFoundError:
             from selenium import webdriver
             with webdriver.Chrome(executable_path=path.join(basedir, 'chromedriver')) as driver:
@@ -45,7 +45,7 @@ def display():
 @login_required
 def orders():
     try:
-        c = auth.client_from_token_file(token, api_key)
+        c = auth.client_from_token_file(path.join(basedir, 'token'), api_key)
     except FileNotFoundError:
             from selenium import webdriver
             with webdriver.Chrome(executable_path=path.join(basedir, 'chromedriver')) as driver:
@@ -58,7 +58,7 @@ def orders():
 @login_required
 def purchase():
     try:
-        c = auth.client_from_token_file(token, api_key)
+        c = auth.client_from_token_file(path.join(basedir, 'token'), api_key)
     except FileNotFoundError:
             from selenium import webdriver
             with webdriver.Chrome(executable_path=path.join(basedir, 'chromedriver')) as driver:
