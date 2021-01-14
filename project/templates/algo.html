@@ -118,12 +118,13 @@
 
   <script src="https://code.jquery.com/jquery-3.2.1.min.js"></script> 
     <script> 
+    var hostPort = location.host
       $("#tickerButton").on('click', function(e){
           var stock = ($('#stock').val()).toUpperCase()
           var quantity = ($('#quantity').val()).toUpperCase()
           
           $.ajax({ 
-          url: 'http://127.0.0.1:5000/purchase', 
+          url: 'http://'+hostPort+'/purchase', 
           data: {'stock': stock, 'quantity': quantity}, 
 					method: 'POST', 
 					success: function(data) { 
@@ -142,7 +143,7 @@
           var quantity = ($('#quantity2').val()).toUpperCase()
           
           $.ajax({ 
-          url: 'http://127.0.0.1:5000/sell', 
+          url: 'http://'+hostPort+'/sell', 
           data: {'stock2': stock, 'quantity2': quantity}, 
 					method: 'POST', 
 					success: function(data) { 
@@ -153,13 +154,13 @@
 					} 
         });
         e.preventDefault();
-      });
+      }); 
 
       $("#form").on('submit', function(e){ 
 				var list = ($('#list').val()).toUpperCase(); 
         e.preventDefault();  
 				$.ajax({ 
-					url: 'http://127.0.0.1:5000/algo', 
+					url: 'http://'+hostPort+'/algo', 
 					data: {'list': list}, 
 					method: 'POST', 
 					success: function(data) { 
