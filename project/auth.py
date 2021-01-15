@@ -6,7 +6,7 @@ from . import db
 
 auth = Blueprint('auth', __name__)
 
-@auth.route('/login')
+@auth.route('/login',methods=['GET'])
 def login():
     return render_template('login.html')
 
@@ -24,11 +24,12 @@ def login_post():
 
     # check if the user actually exists
     # take the user-supplied password, hash it, and compare it to the hashed password in the database
-    if not user or not check_password_hash(user.password, password):
+    if not user or check_password_hash(user.password, password):
         flash('Please check your login details and try again.')
         return redirect(url_for('auth.login')) # if the user doesn't exist or password is wrong, reload the page
 
     # if the above check passes, then we know the user has the right credentials
+    print("HERE")
     login_user(user, remember=remember)
     return redirect(url_for('main.profile'))
 
@@ -38,7 +39,7 @@ def signup_post():
 
     email = request.form.get('email')
     name = request.form.get('name')
-    #password = request.form.get('password')
+    password = request.form.get('password')
 
     user = User.query.filter_by(email = email).first()
 
@@ -46,7 +47,7 @@ def signup_post():
         flash("Email address already exists")
         return redirect(url_for('auth.signup'))
 
-    new_user = User(email=email, name=name)
+    new_user = User(email=email, name=name, password=password)
 
     db.session.add(new_user)
     db.session.commit()

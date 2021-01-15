@@ -1,6 +1,6 @@
 from tda import auth, client
 from os import path, environ
-import json, datetime, pandas as pd, tda, time
+import json, datetime, pandas as pd, tda, time, requests
 from dateutil import parser
 from dateutil.relativedelta import relativedelta
 from selenium import webdriver
@@ -112,7 +112,26 @@ def sell():
     
     return json.dumps({'order':order, 'success':True, 'method': "Selling.", 'maxValue': maxValue, "number_of_shares": number_of_shares}), 200, {'ContentType':'application/json'} 
 
+@algo.route('/scoreboard', methods=['GET','POST'])
+def scoreboard():
+    try:
+        c = auth.client_from_token_file(path.join(basedir, 'token'), api_key)
+    except FileNotFoundError:
+            from selenium import webdriver
+            with webdriver.Chrome(executable_path=path.join(basedir, 'chromedriver')) as driver:
+                c = auth.client_from_login_flow(
+                    driver, api_key, redirect_uri, token)
+    header = {
+    "User-Agent": "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/50.0.2661.75 Safari/537.36",
+    "X-Requested-With": "XMLHttpRequest"
+    }
+    table=requests.get('https://www.slickcharts.com/sp500', headers=header)
+    df = pd.read_html(table.text)
+    df = df[0]['Symbol']
 
+    weightList, stockTicker = scoreboardScores(c,df)
+
+    return render_template('scoreboard.html',  name=current_user.name, weightList=weightList, stockTicker = stockTicker)
 
 def scores(c, t = "None"):
     
@@ -182,6 +201,50 @@ def scores(c, t = "None"):
     for name in weightList:
         weightList.update({name: [weightList[name], idx]})
         idx = idx+1
+
+    return [weightList, maxValue]
+
+
+def scoreboardScores(c, t):
+    
+    etfs = t
+    state = 1
+    highestPortfolio = 0
+    target_leverage = 1
+    
+    #Set array for scores
+    weightList = {}
+
+    for i in (etfs[:100]):
+        #Get price history for each stock above
+        his = c.get_price_history(i,
+            period_type=client.Client.PriceHistory.PeriodType.YEAR,
+            period=client.Client.PriceHistory.Period.ONE_YEAR,
+            frequency_type=client.Client.PriceHistory.FrequencyType.DAILY,
+            frequency=client.Client.PriceHistory.Frequency.DAILY)
+
+        assert his.status_code == 200, his.raise_for_status()
+        
+        #Calculate scores and update weightList
+        data = pd.read_json(json.dumps(his.json()['candles'], indent=4))
+        one = (pd.DataFrame(data).tail(1).head(1)['close']).values[0]
+        twentyone = (pd.DataFrame(data).tail(21).head(1)['close']).values[0]
+        sixtythree = (pd.DataFrame(data).tail(63).head(1)['close']).values[0]
+        onetwentysix = (pd.DataFrame(data).tail(126).head(1)['close']).values[0]
+        weightList.update({i: one/twentyone*.43 + one/sixtythree * .33 + one/onetwentysix * .24 })
+
+
+    #Get maxValue of scores and print maxValue with score
+    maxValue = max(weightList, key=weightList.get)
+        
+    weightList = dict(sorted(weightList.items(), key=lambda x: x[1], reverse = True))    
+    
+    idx = 1
+    for name in weightList:
+        weightList.update({name: [weightList[name], idx]})
+        idx = idx+1
+    
+    #buyStock(maxValue, target_leverage)
 
     return [weightList, maxValue]
 

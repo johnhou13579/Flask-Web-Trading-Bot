@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+
+{% block content %}
+
+<h1 class="title">
+  Algorithm Results For {{name}}!
+</h1>
+<h2 class="subtitle">
+    Scoring the top 100 Companies in the S&P500 with the highest weights.
+  </h2>
+
+  <h2 class="subtitle">
+    The highest scoring stock using our algorithm is {{stockTicker}}!
+  </h2>
+  
+  <table class = "table is-bordered is-narrow is-hoverable is-fullwidth" id="table1">
+    
+    <thead>
+      <tr>
+        <th class="has-text-centered">Rank</th>
+        <th class="has-text-centered">Stock</th>
+        <th class="has-text-centered">Score</th>
+      </tr>
+    </thead>
+
+    {% for name in weightList %}
+    {% if weightList[name][1] == 1 %}
+    <tr class = "is-selected">
+    {% else %}
+    <tr>
+    {% endif %}  
+        <th class="has-text-centered">{{ weightList[name][1] }}</th> 
+        <td class="has-text-centered">{{ name }}</td> 
+        <td class="has-text-centered">{{ weightList[name][0] }}</td>
+    </tr>
+  {% endfor %}
+
+  </table>
+
+{% endblock %}
